@@ -205,7 +205,6 @@ O histórico de commits do projeto adota mensagens semânticas:
 
 ## ⚠️ Limitações Conhecidas
 
-- O ambiente local não possui o binário do **GitHub CLI (`gh`)** instalado no sistema operacional, impedindo a criação e envio automatizados do repositório remoto via terminal. O projeto está 100% versionado localmente na branch `main` e pronto para publicação manual ou após instalação do `gh`.
 - A PokéAPI possui limitação de taxa (*rate limiting*) que, embora generosa para uso individual, pode responder com lentidão se houver requisições massivas seguidas.
 
 ---
