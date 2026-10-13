@@ -287,9 +287,68 @@ export const PokemonSearchScreen: React.FC = () => {
   // Compute dataset for the single FlatList
   const flatListData = viewMode === 'search' ? (searchResult ? [searchResult] : []) : allPokemons;
 
-  // Header content rendered inside or above FlatList
-  const renderListHeader = () => {
-    return (
+  // Footer component
+  const renderListFooter = () => {
+    if (viewMode === 'all') {
+      return (
+        <LoadingFooter
+          isLoadingMore={isLoadingMore}
+          hasReachedEnd={nextOffset === null && allPokemons.length > 0}
+          loadMoreError={loadMoreError}
+          onRetry={loadMorePokemons}
+        />
+      );
+    }
+    return <View style={styles.bottomSpacer} />;
+  };
+
+  // Empty state component
+  const renderEmptyComponent = () => {
+    if (isSearching || isLoadingInitialAll) {
+      return (
+        <View style={styles.initialLoadingContainer}>
+          <ActivityIndicator size="large" color="#E3350D" />
+          <Text style={styles.initialLoadingText}>
+            {viewMode === 'search'
+              ? 'Consultando PokéAPI...'
+              : 'Carregando Pokédex...'}
+          </Text>
+        </View>
+      );
+    }
+
+    if (viewMode === 'search') {
+      if (searchError) {
+        return null;
+      }
+      return (
+        <EmptyState
+          message="Digite o nome ou ID de um Pokémon para começar."
+          subMessage="Exemplos: pikachu, charizard, 25, 150"
+        />
+      );
+    }
+
+    if (viewMode === 'all') {
+      if (allError) {
+        return null;
+      }
+      return (
+        <EmptyState
+          message="Nenhum Pokémon encontrado."
+          subMessage="Tente puxar para atualizar a lista."
+        />
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
+
+      {/* Fixed top header with SearchBar and mode toggle */}
       <View style={styles.headerContainer}>
         <View style={styles.brandingSection}>
           <Text style={styles.appTitle}>PokeSearch</Text>
@@ -366,74 +425,11 @@ export const PokemonSearchScreen: React.FC = () => {
           />
         )}
       </View>
-    );
-  };
 
-  // Footer component
-  const renderListFooter = () => {
-    if (viewMode === 'all') {
-      return (
-        <LoadingFooter
-          isLoadingMore={isLoadingMore}
-          hasReachedEnd={nextOffset === null && allPokemons.length > 0}
-          loadMoreError={loadMoreError}
-          onRetry={loadMorePokemons}
-        />
-      );
-    }
-    return <View style={styles.bottomSpacer} />;
-  };
-
-  // Empty state component
-  const renderEmptyComponent = () => {
-    if (isSearching || isLoadingInitialAll) {
-      return (
-        <View style={styles.initialLoadingContainer}>
-          <ActivityIndicator size="large" color="#E3350D" />
-          <Text style={styles.initialLoadingText}>
-            {viewMode === 'search'
-              ? 'Consultando PokéAPI...'
-              : 'Carregando Pokédex...'}
-          </Text>
-        </View>
-      );
-    }
-
-    if (viewMode === 'search') {
-      if (searchError) {
-        return null; // Error message is already displayed in header
-      }
-      return (
-        <EmptyState
-          message="Digite o nome ou ID de um Pokémon para começar."
-          subMessage="Exemplos: pikachu, charizard, 25, 150"
-        />
-      );
-    }
-
-    if (viewMode === 'all') {
-      if (allError) {
-        return null; // Error message is already displayed in header
-      }
-      return (
-        <EmptyState
-          message="Nenhum Pokémon encontrado."
-          subMessage="Tente puxar para atualizar a lista."
-        />
-      );
-    }
-
-    return null;
-  };
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
       <FlatList
         data={flatListData}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={renderListHeader}
         ListFooterComponent={renderListFooter}
         ListEmptyComponent={renderEmptyComponent}
         onEndReached={viewMode === 'all' ? loadMorePokemons : undefined}
